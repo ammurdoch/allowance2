@@ -1,6 +1,7 @@
 import { StackNavigationProp } from '@react-navigation/stack';
 import * as React from 'react';
-import { StyleSheet, Text, View } from 'react-native';
+import { StyleSheet } from 'react-native';
+import { Layout, Text } from '@ui-kitten/components';
 import { RootStackParamList } from '../../../types';
 
 type AccountsScreenNavProp = StackNavigationProp<
@@ -14,9 +15,9 @@ type AccountsProps = {
 
 const AccountsScreen: React.FunctionComponent<AccountsProps> = () => {
   return (
-    <View style={styles.container}>
+    <Layout style={styles.container}>
       <Text>Accounts Screen</Text>
-    </View>
+    </Layout>
   );
 }
 

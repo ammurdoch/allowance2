@@ -1,6 +1,7 @@
 import { StackNavigationProp } from '@react-navigation/stack';
 import * as React from 'react';
-import { Button, StyleSheet, Text, View } from 'react-native';
+import { StyleSheet } from 'react-native';
+import { Button, Layout, Text } from '@ui-kitten/components';
 import { RootStackParamList } from '../../../types';
 
 type ForgotPasswordScreenNavProp = StackNavigationProp<
@@ -15,13 +16,10 @@ type ForgotPasswordProps = {
 const ForgotPasswordScreen: React.FunctionComponent<ForgotPasswordProps> = props => {
   const { navigation } = props;
   return (
-    <View style={styles.container}>
+    <Layout style={styles.container}>
       <Text>Forgot Password Screen</Text>
-      <Button
-        title="Back to Sign In"
-        onPress={() => navigation.goBack()}
-      />
-    </View>
+      <Button onPress={() => navigation.goBack()}>Back to Sign In"</Button>
+    </Layout>
   )
 }
 

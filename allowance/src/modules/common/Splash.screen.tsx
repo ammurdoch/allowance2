@@ -1,12 +1,12 @@
 import * as React from 'react';
-import { StyleSheet, Text, View } from 'react-native';
-
+import { StyleSheet } from 'react-native';
+import { Layout, Text } from '@ui-kitten/components';
 
 const SplashScreen: React.FunctionComponent = () => {
   return (
-    <View style={styles.container}>
+    <Layout style={styles.container}>
       <Text>Splash</Text>
-    </View>
+    </Layout>
   );
 }
 

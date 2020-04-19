@@ -1,6 +1,7 @@
 import { StackNavigationProp } from '@react-navigation/stack';
 import * as React from 'react';
-import { Button, StyleSheet, Text, View } from 'react-native';
+import { StyleSheet } from 'react-native';
+import { Button, Layout, Text } from '@ui-kitten/components';
 import { RootStackParamList } from '../../../types';
 
 type SignUpScreenNavProp = StackNavigationProp<
@@ -15,13 +16,10 @@ type SignUpProps = {
 const SignUpScreen: React.FunctionComponent<SignUpProps> = props => {
   const { navigation } = props;
   return (
-    <View style={styles.container}>
+    <Layout style={styles.container}>
       <Text>Sign Up Screen</Text>
-      <Button
-        title="Already have an account?"
-        onPress={() => navigation.goBack()}
-      />
-    </View>
+      <Button onPress={() => navigation.goBack()}>Already have an account?</Button>
+    </Layout>
   )
 }
 

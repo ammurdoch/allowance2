@@ -1,6 +1,7 @@
 import { StackNavigationProp } from '@react-navigation/stack';
+import { Layout, Text, Button } from '@ui-kitten/components';
 import * as React from 'react';
-import { Button, StyleSheet, Text, View } from 'react-native';
+import { StyleSheet } from 'react-native';
 import { RootStackParamList } from '../../../types';
 import { AuthContext } from './Auth.context';
 
@@ -17,21 +18,12 @@ const SignInScreen: React.FunctionComponent<SignInProps> = props => {
   const { navigation } = props;
   const { signIn } = React.useContext(AuthContext);
   return (
-    <View style={styles.container}>
+    <Layout style={styles.container}>
       <Text>Sign In Screen</Text>
-      <Button
-        title="Sign In"
-        onPress={() => signIn()}
-      />
-      <Button
-        title="Sign Up"
-        onPress={() => navigation.navigate('SignUp')}
-      />
-      <Button
-        title="Forgot Password"
-        onPress={() => navigation.navigate('SignUp')}
-      />
-    </View>
+      <Button onPress={() => signIn()}>Sign In</Button>
+      <Button onPress={() => navigation.navigate('SignUp')}>Sign Up</Button>
+      <Button onPress={() => navigation.navigate('ForgotPassword')}>Forgot Password</Button>
+    </Layout>
   );
 }
 

@@ -1,6 +1,7 @@
 import { StackNavigationProp } from '@react-navigation/stack';
 import * as React from 'react';
-import { Button, StyleSheet, Text, View } from 'react-native';
+import { StyleSheet } from 'react-native';
+import { Layout, Text, Button } from '@ui-kitten/components';
 import { RootStackParamList } from '../../../types';
 import { AuthContext } from './Auth.context';
 
@@ -19,9 +20,9 @@ const SignOutScreen: React.FunctionComponent<SignOutProps> = () => {
     authContext.signOut();
   }, [authContext])
   return (
-    <View style={styles.container}>
+    <Layout style={styles.container}>
       <Text>Signing Out ...</Text>
-    </View>
+    </Layout>
   )
 }
 
