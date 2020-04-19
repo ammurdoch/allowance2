@@ -25,7 +25,7 @@ import { EvaIconsPack } from '@ui-kitten/eva-icons';
 // Optionally import the services that you want to use
 import 'firebase/auth';
 //import "firebase/database";
-//import "firebase/firestore";
+import 'firebase/firestore';
 //import "firebase/functions";
 //import "firebase/storage";
 
@@ -46,25 +46,29 @@ firebase.initializeApp(firebaseConfig);
 const Stack = createStackNavigator();
 const { Navigator, Screen } = createDrawerNavigator();
 
-const DrawerContent = ({ navigation, state }: any) => (
+const DrawerContent = ({ navigation, state }: any): React.ReactElement => (
   <SafeAreaView>
     <Drawer
       selectedIndex={state.index}
-      onSelect={index => navigation.navigate(state.routeNames[index.row])}
+      onSelect={(index): any =>
+        navigation.navigate(state.routeNames[index.row])
+      }
     >
-      <DrawerItem title="Home" />
+      {/* <DrawerItem title="Home" /> */}
       <DrawerItem title="Accounts" />
       <DrawerItem title="SignOut" />
     </Drawer>
   </SafeAreaView>
 );
 
-const DrawerNavigator = () => (
+const DrawerNavigator: React.FunctionComponent = () => (
   <Navigator
-    drawerContent={props => <DrawerContent {...props} />}
-    initialRouteName="Home"
+    drawerContent={(props: any): React.ReactElement => (
+      <DrawerContent {...props} />
+    )}
+    initialRouteName="Accounts"
   >
-    <Screen name="Home" component={HomeScreen} options={{ title: 'Home' }} />
+    {/* <Screen name="Home" component={HomeScreen} options={{ title: 'Home' }} /> */}
     <Screen
       name="Accounts"
       component={AccountsScreen}
@@ -78,19 +82,19 @@ const DrawerNavigator = () => (
   </Navigator>
 );
 
-function App() {
+function App(): React.ReactElement {
   return (
     <>
       <IconRegistry icons={EvaIconsPack} />
       <ApplicationProvider {...eva} theme={eva.light}>
         <AuthContextProvider>
-          {(context: AuthContextType) => (
+          {(context: AuthContextType): React.ReactElement => (
             <>
               {context.state.isLoading ? (
                 <SplashScreen />
               ) : (
                 <NavigationContainer>
-                  {context.state.userToken ? (
+                  {context.state.user ? (
                     <DrawerNavigator />
                   ) : (
                     <Stack.Navigator

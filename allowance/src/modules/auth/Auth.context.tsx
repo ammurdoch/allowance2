@@ -11,7 +11,7 @@ import {
 const initialAuthState: AuthState = {
   isLoading: true,
   isSignout: false,
-  userToken: null,
+  user: null,
 };
 
 export const AuthContext = React.createContext<AuthContextType>({
@@ -33,10 +33,11 @@ export const AuthContextProvider: React.FunctionComponent<Props> = props => {
 
   React.useEffect(() => {
     firebase.auth().onAuthStateChanged(user => {
+      console.log('authStateChange', user);
       setState({
         isLoading: false,
         isSignout: false,
-        userToken: user,
+        user: user,
       });
     });
   }, []);

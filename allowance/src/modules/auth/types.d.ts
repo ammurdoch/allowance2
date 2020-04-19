@@ -13,7 +13,7 @@ export type SignUpValues = {
 export type AuthState = {
   isLoading: boolean;
   isSignout: boolean;
-  userToken: User | null;
+  user: User | null;
 };
 
 export type AuthContextType = {
