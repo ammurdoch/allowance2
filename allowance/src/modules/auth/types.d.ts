@@ -1,10 +1,24 @@
+import { User } from 'firebase';
+
+export type SignInValues = {
+  email: string;
+  password: string;
+};
+
+export type SignUpValues = {
+  email: string;
+  password: string;
+};
+
+export type AuthState = {
+  isLoading: boolean;
+  isSignout: boolean;
+  userToken: User | null;
+};
+
 export type AuthContextType = {
-  signIn: () => Promise<void>;
+  signIn: (values: SignInValues) => Promise<string>;
   signOut: () => void;
-  signUp: () => Promise<void>;
-  state: {
-    isLoading: boolean;
-    isSignout: boolean;
-    userToken: string | null,
-  };
-}
+  signUp: (values: SignUpValues) => Promise<string>;
+  state: AuthState;
+};

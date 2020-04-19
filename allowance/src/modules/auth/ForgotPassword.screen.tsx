@@ -11,7 +11,7 @@ type ForgotPasswordScreenNavProp = StackNavigationProp<
 
 type ForgotPasswordProps = {
   navigation: ForgotPasswordScreenNavProp;
-}
+};
 
 const ForgotPasswordScreen: React.FunctionComponent<ForgotPasswordProps> = props => {
   const { navigation } = props;
@@ -20,8 +20,8 @@ const ForgotPasswordScreen: React.FunctionComponent<ForgotPasswordProps> = props
       <Text>Forgot Password Screen</Text>
       <Button onPress={() => navigation.goBack()}>Back to Sign In"</Button>
     </Layout>
-  )
-}
+  );
+};
 
 const styles = StyleSheet.create({
   container: {

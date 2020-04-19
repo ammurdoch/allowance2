@@ -4,15 +4,11 @@ import { StyleSheet } from 'react-native';
 import { Layout, Text } from '@ui-kitten/components';
 import { RootStackParamList } from '../../../types';
 
-
-type HomeScreenNavProp = StackNavigationProp<
-  RootStackParamList,
-  'Home'
->;
+type HomeScreenNavProp = StackNavigationProp<RootStackParamList, 'Home'>;
 
 type HomeProps = {
   navigation: HomeScreenNavProp;
-}
+};
 
 const HomeScreen: React.FunctionComponent<HomeProps> = () => {
   return (
@@ -20,7 +16,7 @@ const HomeScreen: React.FunctionComponent<HomeProps> = () => {
       <Text>Home Screen</Text>
     </Layout>
   );
-}
+};
 
 const styles = StyleSheet.create({
   container: {

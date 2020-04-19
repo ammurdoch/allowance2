@@ -3,7 +3,7 @@ import { NavigationContainer } from '@react-navigation/native';
 import { createStackNavigator } from '@react-navigation/stack';
 import * as React from 'react';
 import * as eva from '@eva-design/eva';
-import { ApplicationProvider, Drawer, DrawerItem } from '@ui-kitten/components';
+import { ApplicationProvider, Drawer, DrawerItem, IconRegistry } from '@ui-kitten/components';
 import { SafeAreaView } from 'react-native';
 import HomeScreen from './src/modules/home/Home.screen';
 import SignInScreen from './src/modules/auth/SignIn.screen';
@@ -14,6 +14,30 @@ import { AuthContextProvider } from './src/modules/auth/Auth.context';
 import { AuthContextType } from './src/modules/auth/types';
 import SplashScreen from './src/modules/common/Splash.screen';
 import SignOutScreen from './src/modules/auth/SignOut.screen';
+import * as firebase from 'firebase';
+import { EvaIconsPack } from '@ui-kitten/eva-icons';
+
+
+// Optionally import the services that you want to use
+import "firebase/auth";
+//import "firebase/database";
+//import "firebase/firestore";
+//import "firebase/functions";
+//import "firebase/storage";
+
+// Initialize Firebase
+const firebaseConfig = {
+  apiKey: "AIzaSyALR-rWJJINHwCIUBi7qUmkV5JdcPWtYdg",
+  authDomain: "allowance-6d08d.firebaseapp.com",
+  databaseURL: "https://allowance-6d08d.firebaseio.com",
+  projectId: "allowance-6d08d",
+  storageBucket: "allowance-6d08d.appspot.com",
+  messagingSenderId: "361336863051",
+  appId: "1:361336863051:web:b39f8248d0a0a467cf90ce",
+  measurementId: "G-M23YSPTGGE"
+};
+
+firebase.initializeApp(firebaseConfig);
 
 const Stack = createStackNavigator();
 const { Navigator, Screen } = createDrawerNavigator();
@@ -43,27 +67,30 @@ const DrawerNavigator = () => (
 function App() {
   
   return (
-    <ApplicationProvider {...eva} theme={eva.light}>
-      <AuthContextProvider>
-        {(context: AuthContextType) => (
-          <>
-            {context.state.isLoading ? <SplashScreen /> : (
-              <NavigationContainer>
-                {context.state.userToken ? (
-                  <DrawerNavigator />
-                ) : (
-                  <Stack.Navigator initialRouteName="SignIn">
-                    <Stack.Screen name="SignIn" component={SignInScreen} />
-                    <Stack.Screen name="SignUp" component={SignUpScreen} />
-                    <Stack.Screen name="ForgotPassword" component={ForgotPasswordScreen} />
-                  </Stack.Navigator>
-                )}
-              </NavigationContainer>
-            )}
-          </>
-        )}
-      </AuthContextProvider>
-    </ApplicationProvider>
+    <>
+      <IconRegistry icons={EvaIconsPack} />
+      <ApplicationProvider {...eva} theme={eva.light}>
+        <AuthContextProvider>
+          {(context: AuthContextType) => (
+            <>
+              {context.state.isLoading ? <SplashScreen /> : (
+                <NavigationContainer>
+                  {context.state.userToken ? (
+                    <DrawerNavigator />
+                  ) : (
+                    <Stack.Navigator headerMode='none' initialRouteName="SignIn">
+                      <Stack.Screen name="SignIn" component={SignInScreen} />
+                      <Stack.Screen name="SignUp" component={SignUpScreen} />
+                      <Stack.Screen name="ForgotPassword" component={ForgotPasswordScreen} />
+                    </Stack.Navigator>
+                  )}
+                </NavigationContainer>
+              )}
+            </>
+          )}
+        </AuthContextProvider>
+      </ApplicationProvider>
+    </>
   );
 }
 

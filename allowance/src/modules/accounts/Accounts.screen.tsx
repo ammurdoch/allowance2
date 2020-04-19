@@ -11,7 +11,7 @@ type AccountsScreenNavProp = StackNavigationProp<
 
 type AccountsProps = {
   navigation: AccountsScreenNavProp;
-}
+};
 
 const AccountsScreen: React.FunctionComponent<AccountsProps> = () => {
   return (
@@ -19,7 +19,7 @@ const AccountsScreen: React.FunctionComponent<AccountsProps> = () => {
       <Text>Accounts Screen</Text>
     </Layout>
   );
-}
+};
 
 const styles = StyleSheet.create({
   container: {

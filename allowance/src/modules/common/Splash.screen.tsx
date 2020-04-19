@@ -8,7 +8,7 @@ const SplashScreen: React.FunctionComponent = () => {
       <Text>Splash</Text>
     </Layout>
   );
-}
+};
 
 const styles = StyleSheet.create({
   container: {

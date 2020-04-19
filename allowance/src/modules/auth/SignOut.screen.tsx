@@ -5,26 +5,23 @@ import { Layout, Text, Button } from '@ui-kitten/components';
 import { RootStackParamList } from '../../../types';
 import { AuthContext } from './Auth.context';
 
-type SignOutScreenNavProp = StackNavigationProp<
-  RootStackParamList,
-  'SignOut'
->;
+type SignOutScreenNavProp = StackNavigationProp<RootStackParamList, 'SignOut'>;
 
 type SignOutProps = {
   navigation: SignOutScreenNavProp;
-}
+};
 
 const SignOutScreen: React.FunctionComponent<SignOutProps> = () => {
-  const authContext = React.useContext(AuthContext)
+  const authContext = React.useContext(AuthContext);
   React.useEffect(() => {
     authContext.signOut();
-  }, [authContext])
+  }, [authContext]);
   return (
     <Layout style={styles.container}>
       <Text>Signing Out ...</Text>
     </Layout>
-  )
-}
+  );
+};
 
 const styles = StyleSheet.create({
   container: {
