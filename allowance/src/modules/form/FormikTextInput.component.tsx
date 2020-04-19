@@ -1,7 +1,19 @@
 import { Icon, Input } from '@ui-kitten/components';
 import { FormikProps, FormikValues } from 'formik';
-import React, { FunctionComponent, useCallback, useMemo } from 'react';
+import React, {
+  FunctionComponent,
+  ReactElement,
+  useCallback,
+  useMemo,
+} from 'react';
 import { StyleSheet, View } from 'react-native';
+
+const styles = StyleSheet.create({
+  container: {
+    width: '100%',
+    marginBottom: 8,
+  },
+});
 
 export interface TextControlProps {
   name: string;
@@ -14,7 +26,7 @@ export interface TextControlProps {
   placeholder?: string;
 }
 
-const AlertIcon = (iconProps: any) => (
+const AlertIcon = (iconProps: any): ReactElement => (
   <Icon {...iconProps} name="alert-circle-outline" />
 );
 
@@ -54,7 +66,9 @@ const FormikTextControl: FunctionComponent<TextControlProps> = (
   }, [setFieldTouched, name]);
   let renderIcon;
   if (icon) {
-    renderIcon = (iconProps: any) => <Icon {...iconProps} name={icon} />;
+    renderIcon = (iconProps: any): ReactElement => (
+      <Icon {...iconProps} name={icon} />
+    );
   }
 
   const [myStatus, myCaption, myCaptionIcon] = useMemo(() => {
@@ -76,18 +90,11 @@ const FormikTextControl: FunctionComponent<TextControlProps> = (
         accessoryLeft={renderIcon}
         onChangeText={myHandleChange}
         onBlur={myHandleBlur}
-        onSubmitEditing={() => submitForm()}
+        onSubmitEditing={(): Promise<void> => submitForm()}
         {...inputProps}
       />
     </View>
   );
 };
-
-const styles = StyleSheet.create({
-  container: {
-    width: '100%',
-    marginBottom: 8,
-  },
-});
 
 export default FormikTextControl;

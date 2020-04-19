@@ -1,13 +1,12 @@
+import * as firebase from 'firebase';
 import * as React from 'react';
-import { AsyncStorage } from 'react-native';
+import { isEmptyChildren, isFunction } from '../../utils/react.utils';
 import {
   AuthContextType,
-  SignInValues,
   AuthState,
+  SignInValues,
   SignUpValues,
 } from './types';
-import { isFunction, isEmptyChildren } from '../../utils/react.utils';
-import * as firebase from 'firebase';
 
 const initialAuthState: AuthState = {
   isLoading: true,
@@ -17,7 +16,7 @@ const initialAuthState: AuthState = {
 
 export const AuthContext = React.createContext<AuthContextType>({
   signIn: async () => '',
-  signOut: () => {},
+  signOut: () => null,
   signUp: async () => '',
   state: initialAuthState,
 });
@@ -33,23 +32,6 @@ export const AuthContextProvider: React.FunctionComponent<Props> = props => {
   const [state, setState] = React.useState(initialAuthState);
 
   React.useEffect(() => {
-    // Fetch the token from storage then navigate to our appropriate place
-    const bootstrapAsync = async () => {
-      let userToken;
-
-      // try {
-      //   userToken = await AsyncStorage.getItem('userToken');
-      // } catch (e) {
-      //   // Restoring token failed
-      // }
-
-      // After restoring token, we may need to validate it in production apps
-
-      // This will switch to the App screen or Auth screen and this loading
-      // screen will be unmounted and thrown away.
-    };
-
-    // Listen for authentication state to change.
     firebase.auth().onAuthStateChanged(user => {
       setState({
         isLoading: false,
@@ -57,13 +39,11 @@ export const AuthContextProvider: React.FunctionComponent<Props> = props => {
         userToken: user,
       });
     });
-
-    bootstrapAsync();
   }, []);
 
   const authContext = React.useMemo(
     () => ({
-      signIn: async (values: SignInValues) => {
+      signIn: async (values: SignInValues): Promise<string> => {
         const { email, password } = values;
         try {
           await firebase.auth().signInWithEmailAndPassword(email, password);
@@ -73,7 +53,7 @@ export const AuthContextProvider: React.FunctionComponent<Props> = props => {
         }
         return '';
       },
-      signOut: async () => {
+      signOut: async (): Promise<void> => {
         setState({
           ...state,
           isLoading: true,
@@ -81,7 +61,7 @@ export const AuthContextProvider: React.FunctionComponent<Props> = props => {
         });
         await firebase.auth().signOut();
       },
-      signUp: async (values: SignUpValues) => {
+      signUp: async (values: SignUpValues): Promise<string> => {
         const { email, password } = values;
         try {
           await firebase.auth().createUserWithEmailAndPassword(email, password);

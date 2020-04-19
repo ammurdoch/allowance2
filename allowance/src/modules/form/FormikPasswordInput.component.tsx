@@ -1,8 +1,20 @@
 import { Icon, Input } from '@ui-kitten/components';
 import { FormikProps, FormikValues } from 'formik';
-import React, { FunctionComponent, useCallback, useMemo } from 'react';
+import React, {
+  FunctionComponent,
+  useCallback,
+  useMemo,
+  ReactElement,
+} from 'react';
 import { StyleSheet, View } from 'react-native';
 import { TouchableWithoutFeedback } from 'react-native-gesture-handler';
+
+const styles = StyleSheet.create({
+  container: {
+    width: '100%',
+    marginBottom: 8,
+  },
+});
 
 export interface TextControlProps {
   name: string;
@@ -15,7 +27,7 @@ export interface TextControlProps {
   placeholder?: string;
 }
 
-const AlertIcon = (iconProps: any) => (
+const AlertIcon = (iconProps: any): ReactElement => (
   <Icon {...iconProps} name="alert-circle-outline" />
 );
 
@@ -55,7 +67,9 @@ const FormikPasswordControl: FunctionComponent<TextControlProps> = (
 
   let renderIcon;
   if (icon) {
-    renderIcon = (iconProps: any) => <Icon {...iconProps} name={icon} />;
+    renderIcon = (iconProps: any): ReactElement => (
+      <Icon {...iconProps} name={icon} />
+    );
   }
 
   const [myStatus, myCaption, myCaptionIcon] = useMemo(() => {
@@ -66,10 +80,10 @@ const FormikPasswordControl: FunctionComponent<TextControlProps> = (
   }, [myError, caption, myTouched]);
 
   const [secureTextEntry, setSecureTextEntry] = React.useState(true);
-  const toggleSecureEntry = () => {
+  const toggleSecureEntry = (): void => {
     setSecureTextEntry(!secureTextEntry);
   };
-  const renderEyeIcon = (iconProps: any) => (
+  const renderEyeIcon = (iconProps: any): ReactElement => (
     <TouchableWithoutFeedback onPress={toggleSecureEntry}>
       <Icon {...iconProps} name={secureTextEntry ? 'eye-off' : 'eye'} />
     </TouchableWithoutFeedback>
@@ -89,18 +103,11 @@ const FormikPasswordControl: FunctionComponent<TextControlProps> = (
         onChangeText={myHandleChange}
         onBlur={myHandleBlur}
         secureTextEntry={secureTextEntry}
-        onSubmitEditing={() => submitForm()}
+        onSubmitEditing={(): Promise<void> => submitForm()}
         {...inputProps}
       />
     </View>
   );
 };
-
-const styles = StyleSheet.create({
-  container: {
-    width: '100%',
-    marginBottom: 8,
-  },
-});
 
 export default FormikPasswordControl;

@@ -1,27 +1,42 @@
 import { StackNavigationProp } from '@react-navigation/stack';
-import {
-  Layout,
-  Text,
-  Button,
-  Input,
-  TopNavigation,
-  Divider,
-  Spinner,
-} from '@ui-kitten/components';
+import { Button, Spinner, Text } from '@ui-kitten/components';
+import { FormikValues, useFormik } from 'formik';
 import * as React from 'react';
 import {
-  StyleSheet,
-  SafeAreaView,
   KeyboardAvoidingView,
+  SafeAreaView,
+  StyleSheet,
   View,
 } from 'react-native';
-import { RootStackParamList } from '../../../types';
-import { AuthContext } from './Auth.context';
-import FormikTextControl from '../form/FormikTextInput.component';
-import FormikPasswordControl from '../form/FormikPasswordInput.component';
-import { useFormik, FormikValues } from 'formik';
 import * as Yup from 'yup';
+import { RootStackParamList } from '../../../types';
+import FormikPasswordControl from '../form/FormikPasswordInput.component';
+import FormikTextControl from '../form/FormikTextInput.component';
+import { AuthContext } from './Auth.context';
 import { SignUpValues } from './types';
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
+    padding: 16,
+  },
+  button1: {
+    marginTop: 8,
+    marginBottom: 16,
+  },
+  already: {
+    marginBottom: 16,
+  },
+  button2: {
+    marginBottom: 16,
+  },
+  indicator: {
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+});
 
 type SignUpScreenNavProp = StackNavigationProp<RootStackParamList, 'SignUp'>;
 
@@ -52,7 +67,7 @@ const SignUpScreen: React.FunctionComponent<SignUpProps> = props => {
 
   const [serverError, setServerError] = React.useState('');
   const [loading, setLoading] = React.useState(false);
-  const LoadingIndicator = (loadingProps: any) => (
+  const LoadingIndicator = (loadingProps: any): React.ReactElement => (
     <View style={[loadingProps.style, styles.indicator]}>
       <Spinner status="basic" size="small" />
     </View>
@@ -106,7 +121,7 @@ const SignUpScreen: React.FunctionComponent<SignUpProps> = props => {
         <Button
           style={styles.button1}
           status="primary"
-          onPress={() => formik.submitForm()}
+          onPress={(): Promise<void> => formik.submitForm()}
           accessoryRight={loading ? LoadingIndicator : undefined}
         >
           Sign Up
@@ -115,7 +130,7 @@ const SignUpScreen: React.FunctionComponent<SignUpProps> = props => {
         <Button
           style={styles.button2}
           status="basic"
-          onPress={() => navigation.goBack()}
+          onPress={(): void => navigation.goBack()}
         >
           Sign In
         </Button>
@@ -124,28 +139,5 @@ const SignUpScreen: React.FunctionComponent<SignUpProps> = props => {
     </SafeAreaView>
   );
 };
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    alignItems: 'center',
-    justifyContent: 'center',
-    padding: 16,
-  },
-  button1: {
-    marginTop: 8,
-    marginBottom: 16,
-  },
-  already: {
-    marginBottom: 16,
-  },
-  button2: {
-    marginBottom: 16,
-  },
-  indicator: {
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-});
 
 export default SignUpScreen;

@@ -27,6 +27,7 @@ module.exports =  {
     "react-hooks/exhaustive-deps": "warn",
     "react/destructuring-assignment": "error",
     "no-shadow": "error",
+    "react/display-name": "off",
   },
   overrides: [
     {

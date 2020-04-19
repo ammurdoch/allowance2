@@ -1,27 +1,41 @@
 import { StackNavigationProp } from '@react-navigation/stack';
-import {
-  Layout,
-  Text,
-  Button,
-  Input,
-  TopNavigation,
-  Divider,
-  Spinner,
-} from '@ui-kitten/components';
+import { Button, Spinner, Text } from '@ui-kitten/components';
+import { FormikValues, useFormik } from 'formik';
 import * as React from 'react';
 import {
-  StyleSheet,
-  SafeAreaView,
   KeyboardAvoidingView,
+  SafeAreaView,
+  StyleSheet,
   View,
 } from 'react-native';
-import { RootStackParamList } from '../../../types';
-import { AuthContext } from './Auth.context';
-import FormikTextControl from '../form/FormikTextInput.component';
-import FormikPasswordControl from '../form/FormikPasswordInput.component';
-import { useFormik, FormikValues } from 'formik';
 import * as Yup from 'yup';
+import { RootStackParamList } from '../../../types';
+import FormikPasswordControl from '../form/FormikPasswordInput.component';
+import FormikTextControl from '../form/FormikTextInput.component';
+import { AuthContext } from './Auth.context';
 import { SignInValues } from './types';
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
+    padding: 16,
+  },
+  button: {
+    marginLeft: 4,
+    marginRight: 4,
+  },
+  buttonsRow: {
+    marginTop: 8,
+    justifyContent: 'center',
+    flexDirection: 'row',
+  },
+  indicator: {
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+});
 
 type SignInScreenNavProp = StackNavigationProp<RootStackParamList, 'SignIn'>;
 
@@ -44,7 +58,7 @@ const SignInScreen: React.FunctionComponent<SignInProps> = props => {
 
   const [serverError, setServerError] = React.useState('');
   const [loading, setLoading] = React.useState(false);
-  const LoadingIndicator = (loadingProps: any) => (
+  const LoadingIndicator = (loadingProps: any): React.ReactElement => (
     <View style={[loadingProps.style, styles.indicator]}>
       <Spinner status="basic" size="small" />
     </View>
@@ -90,7 +104,7 @@ const SignInScreen: React.FunctionComponent<SignInProps> = props => {
           <Button
             style={styles.button}
             status="primary"
-            onPress={() => formik.submitForm()}
+            onPress={(): Promise<void> => formik.submitForm()}
             accessoryRight={loading ? LoadingIndicator : undefined}
           >
             Sign In
@@ -98,7 +112,7 @@ const SignInScreen: React.FunctionComponent<SignInProps> = props => {
           <Button
             style={styles.button}
             status="basic"
-            onPress={() => navigation.navigate('SignUp')}
+            onPress={(): void => navigation.navigate('SignUp')}
           >
             Sign Up
           </Button>
@@ -108,27 +122,5 @@ const SignInScreen: React.FunctionComponent<SignInProps> = props => {
     </SafeAreaView>
   );
 };
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    alignItems: 'center',
-    justifyContent: 'center',
-    padding: 16,
-  },
-  button: {
-    marginLeft: 4,
-    marginRight: 4,
-  },
-  buttonsRow: {
-    marginTop: 8,
-    justifyContent: 'center',
-    flexDirection: 'row',
-  },
-  indicator: {
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-});
 
 export default SignInScreen;
