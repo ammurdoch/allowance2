@@ -1,31 +1,31 @@
+import * as eva from '@eva-design/eva';
 import { createDrawerNavigator } from '@react-navigation/drawer';
 import { NavigationContainer } from '@react-navigation/native';
 import { createStackNavigator } from '@react-navigation/stack';
-import * as React from 'react';
-import * as eva from '@eva-design/eva';
 import {
   ApplicationProvider,
   Drawer,
   DrawerItem,
   IconRegistry,
 } from '@ui-kitten/components';
-import { SafeAreaView } from 'react-native';
-import HomeScreen from './src/modules/home/Home.screen';
-import SignInScreen from './src/modules/auth/SignIn.screen';
-import SignUpScreen from './src/modules/auth/SignUp.screen';
-import ForgotPasswordScreen from './src/modules/auth/ForgotPassword.screen';
-import AccountsScreen from './src/modules/accounts/Accounts.screen';
-import { AuthContextProvider } from './src/modules/auth/Auth.context';
-import { AuthContextType } from './src/modules/auth/types';
-import SplashScreen from './src/modules/common/Splash.screen';
-import SignOutScreen from './src/modules/auth/SignOut.screen';
-import * as firebase from 'firebase';
 import { EvaIconsPack } from '@ui-kitten/eva-icons';
-
+import { MaterialCommunityIconsPack } from './src/modules/common/icons/MaterialCommunityIcons.pack';
+import * as firebase from 'firebase';
 // Optionally import the services that you want to use
 import 'firebase/auth';
 //import "firebase/database";
 import 'firebase/firestore';
+import * as React from 'react';
+import { SafeAreaView } from 'react-native';
+import AccountsNavigator from './src/modules/accounts/Accounts.navigator';
+import { AuthContextProvider } from './src/modules/auth/Auth.context';
+import ForgotPasswordScreen from './src/modules/auth/ForgotPassword.screen';
+import SignInScreen from './src/modules/auth/SignIn.screen';
+import SignOutScreen from './src/modules/auth/SignOut.screen';
+import SignUpScreen from './src/modules/auth/SignUp.screen';
+import { AuthContextType } from './src/modules/auth/types';
+import SplashScreen from './src/modules/common/Splash.screen';
+
 //import "firebase/functions";
 //import "firebase/storage";
 
@@ -44,7 +44,7 @@ const firebaseConfig = {
 firebase.initializeApp(firebaseConfig);
 
 const Stack = createStackNavigator();
-const { Navigator, Screen } = createDrawerNavigator();
+const DrawerNav = createDrawerNavigator();
 
 const DrawerContent = ({ navigation, state }: any): React.ReactElement => (
   <SafeAreaView>
@@ -56,36 +56,27 @@ const DrawerContent = ({ navigation, state }: any): React.ReactElement => (
     >
       {/* <DrawerItem title="Home" /> */}
       <DrawerItem title="Accounts" />
-      <DrawerItem title="SignOut" />
+      <DrawerItem title="Sign Out" />
     </Drawer>
   </SafeAreaView>
 );
 
 const DrawerNavigator: React.FunctionComponent = () => (
-  <Navigator
+  <DrawerNav.Navigator
     drawerContent={(props: any): React.ReactElement => (
       <DrawerContent {...props} />
     )}
     initialRouteName="Accounts"
   >
-    {/* <Screen name="Home" component={HomeScreen} options={{ title: 'Home' }} /> */}
-    <Screen
-      name="Accounts"
-      component={AccountsScreen}
-      options={{ title: 'Accounts' }}
-    />
-    <Screen
-      name="SignOut"
-      component={SignOutScreen}
-      options={{ title: 'SignOut' }}
-    />
-  </Navigator>
+    <DrawerNav.Screen name="Accounts" component={AccountsNavigator} />
+    <DrawerNav.Screen name="SignOut" component={SignOutScreen} />
+  </DrawerNav.Navigator>
 );
 
 function App(): React.ReactElement {
   return (
     <>
-      <IconRegistry icons={EvaIconsPack} />
+      <IconRegistry icons={[EvaIconsPack, MaterialCommunityIconsPack]} />
       <ApplicationProvider {...eva} theme={eva.light}>
         <AuthContextProvider>
           {(context: AuthContextType): React.ReactElement => (

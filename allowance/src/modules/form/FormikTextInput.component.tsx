@@ -20,10 +20,12 @@ export interface TextControlProps {
   label?: string;
   inputProps: any;
   icon?: any;
+  iconPack?: string;
   formikProps: FormikProps<FormikValues>;
   onChange?: (value: any) => void;
   caption?: string;
   placeholder?: string;
+  multiline?: boolean;
 }
 
 const AlertIcon = (iconProps: any): ReactElement => (
@@ -39,9 +41,11 @@ const FormikTextControl: FunctionComponent<TextControlProps> = (
     caption,
     placeholder,
     icon,
+    iconPack,
     inputProps,
     formikProps,
     onChange,
+    multiline,
   } = props;
   const {
     setFieldValue,
@@ -67,7 +71,7 @@ const FormikTextControl: FunctionComponent<TextControlProps> = (
   let renderIcon;
   if (icon) {
     renderIcon = (iconProps: any): ReactElement => (
-      <Icon {...iconProps} name={icon} />
+      <Icon {...iconProps} name={icon} pack={iconPack || 'eva'} />
     );
   }
 
@@ -90,7 +94,10 @@ const FormikTextControl: FunctionComponent<TextControlProps> = (
         accessoryLeft={renderIcon}
         onChangeText={myHandleChange}
         onBlur={myHandleBlur}
-        onSubmitEditing={(): Promise<void> => submitForm()}
+        onSubmitEditing={
+          multiline ? undefined : (): Promise<void> => submitForm()
+        }
+        multiline={multiline}
         {...inputProps}
       />
     </View>

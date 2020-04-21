@@ -73,8 +73,10 @@ const SignInScreen: React.FunctionComponent<SignInProps> = props => {
       setServerError('');
       setLoading(true);
       const errorMsg = await signIn(schema.cast(values) as SignInValues);
-      setLoading(false);
-      setServerError(errorMsg);
+      if (errorMsg) {
+        setLoading(false);
+        setServerError(errorMsg);
+      }
     },
     validationSchema: schema,
   });

@@ -1,20 +1,28 @@
 import * as React from 'react';
-import { StyleSheet } from 'react-native';
-import { Layout, Text } from '@ui-kitten/components';
+import { StyleSheet, Image } from 'react-native';
+import { Layout } from '@ui-kitten/components';
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#fff',
-    alignItems: 'center',
+    backgroundColor: '#1d373b',
+    // alignItems: 'center',
     justifyContent: 'center',
+    // padding: 16,
+  },
+  image: {
+    flex: 1,
+    width: '100%',
+    resizeMode: 'contain',
   },
 });
+
+const logo = require('../../../assets/original.png');
 
 const SplashScreen: React.FunctionComponent = () => {
   return (
     <Layout style={styles.container}>
-      <Text>Splash</Text>
+      <Image style={styles.image} source={logo} />
     </Layout>
   );
 };

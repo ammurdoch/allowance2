@@ -1,22 +1,32 @@
 import { StackNavigationProp } from '@react-navigation/stack';
 import * as React from 'react';
-import { StyleSheet, View } from 'react-native';
+import {
+  StyleSheet,
+  View,
+  FlatListProps,
+  ListRenderItemInfo,
+} from 'react-native';
 import {
   Layout,
   Text,
   TopNavigation,
   Divider,
   Spinner,
+  Icon,
+  TopNavigationAction,
+  List,
 } from '@ui-kitten/components';
-import { RootStackParamList } from '../../../types';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import * as firebase from 'firebase';
 import { AuthContext } from '../auth/Auth.context';
+import { Account, AccountsScreenNavProp } from './types';
+import { FlatList } from 'react-native-gesture-handler';
+import AccountsListItem from './AccountsListItem.component';
+import PlusIcon from '../common/icons/PlusIcon.component';
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    alignItems: 'center',
   },
   loading: {
     flex: 1,
@@ -24,11 +34,6 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
 });
-
-type AccountsScreenNavProp = StackNavigationProp<
-  RootStackParamList,
-  'Accounts'
->;
 
 type AccountsProps = {
   navigation: AccountsScreenNavProp;
@@ -41,15 +46,17 @@ const AccountsScreen: React.FunctionComponent<AccountsProps> = props => {
   React.useEffect(() => {
     if (authContext.state.user) {
       const db = firebase.firestore();
-      db.collection('accounts')
-        .where('ownerId', '==', authContext.state.user.uid)
+      const unsubscribe = db
+        .collection('accounts')
+        .where('orgId', '==', authContext.state.user.uid)
         .onSnapshot(function(querySnapshot) {
           const _accounts: any = [];
           querySnapshot.forEach(function(doc) {
-            _accounts.push([doc.id, doc.data()]);
+            _accounts.push(doc.data());
           });
           setAccounts(_accounts);
         });
+      return (): void => unsubscribe();
     }
   }, [authContext.state.user]);
 
@@ -59,27 +66,30 @@ const AccountsScreen: React.FunctionComponent<AccountsProps> = props => {
     </View>
   );
 
-  // const renderAddAccountAction = () => (
-  //   <TopNavigationAction
-  //     icon={MenuIcon}
-  //     onPress={() => navigation.navigate()}
-  //   />
-  // );
+  const renderAddAccountAction = (): React.ReactElement => (
+    <TopNavigationAction
+      icon={PlusIcon}
+      onPress={(): void => navigation.navigate('CreateAccount')}
+    />
+  );
+
+  const renderItem = (
+    itemProps: ListRenderItemInfo<Account>,
+  ): React.ReactElement => (
+    <AccountsListItem {...itemProps} navigation={navigation} />
+  );
 
   return (
     <SafeAreaView style={{ flex: 1 }}>
       <TopNavigation
         title="My Accounts"
         alignment="center"
-        // accessoryRight={renderAddAccountAction}
+        accessoryRight={renderAddAccountAction}
       />
       <Divider />
       <Layout style={styles.container}>
         {!accounts && renderLoading()}
-        {!!accounts &&
-          accounts.map(([id, account]: any) => (
-            <Text key={id}>{account.name}</Text>
-          ))}
+        {!!accounts && <List data={accounts} renderItem={renderItem} />}
       </Layout>
     </SafeAreaView>
   );
