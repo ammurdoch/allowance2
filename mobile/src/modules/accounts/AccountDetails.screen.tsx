@@ -119,7 +119,6 @@ const AccountDetailsScreen: React.FunctionComponent<AccountsProps> = props => {
 
   React.useEffect(() => {
     if (!tResult.loading && !tResult.errorMsg && !transactions) {
-      console.log('doQuery', tResult);
       tResult.doQuery(settings.pageSize, null);
     }
   }, [tResult, transactions]);
@@ -135,12 +134,6 @@ const AccountDetailsScreen: React.FunctionComponent<AccountsProps> = props => {
   const renderItem = (
     itemProps: ListRenderItemInfo<Transaction>,
   ): React.ReactElement => (
-    // <ListItem
-    //   title={itemProps.item.description}
-    //   description={itemProps.item.category}
-    //   accessoryRight={ForwardIcon}
-    //   onPress={(): void => navigation.navigate('TransactionDetails')}
-    // />
     <TransactionListItem
       categories={categories}
       item={itemProps.item}

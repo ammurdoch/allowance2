@@ -1,5 +1,5 @@
 import { Button, Layout, Spinner, Text } from '@ui-kitten/components';
-import { FormikProps, FormikValues } from 'formik';
+import { FormikProps, FormikValues, useFormik } from 'formik';
 import * as React from 'react';
 import { KeyboardAvoidingView, StyleSheet, View } from 'react-native';
 import useCategories from '../categories/use-categories.hook';
@@ -34,13 +34,28 @@ const styles = StyleSheet.create({
 
 type TransactionsProps = {
   navigation: CreateTransactionScreenNavProp;
-  formik: FormikProps<FormikValues>;
+  initialValues: FormikValues;
+  onSubmit: any;
   loading: boolean;
   serverError: string;
+  schema: any;
 };
 
 const TransactionForm: React.FunctionComponent<TransactionsProps> = props => {
-  const { navigation, formik, loading, serverError } = props;
+  const {
+    navigation,
+    initialValues,
+    onSubmit,
+    schema,
+    loading,
+    serverError,
+  } = props;
+
+  const formik = useFormik({
+    initialValues,
+    onSubmit,
+    validationSchema: schema,
+  });
 
   const _categories = useCategories();
   const categories = Object.values(_categories);
@@ -54,7 +69,7 @@ const TransactionForm: React.FunctionComponent<TransactionsProps> = props => {
   return (
     <KeyboardAvoidingView style={{ flex: 1 }} behavior="padding" enabled>
       <Layout style={styles.container}>
-        {/* {console.log('values', formik.values)} */}
+        {console.log('values', formik.values)}
         {/* {console.log('errors', formik.errors)} */}
         <FormikTextControl
           name="description"

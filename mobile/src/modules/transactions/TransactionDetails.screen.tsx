@@ -1,25 +1,31 @@
-import { StackNavigationProp } from '@react-navigation/stack';
-import * as React from 'react';
-import * as firebase from 'firebase';
-import { StyleSheet, View, KeyboardAvoidingView } from 'react-native';
 import {
-  Layout,
-  Text,
-  TopNavigation,
   Divider,
-  Spinner,
-  Button,
-  TopNavigationAction,
   Icon,
+  TopNavigation,
+  TopNavigationAction,
+  OverflowMenu,
+  MenuItem,
 } from '@ui-kitten/components';
-import { SafeAreaView } from 'react-native-safe-area-context';
-import { AuthContext } from '../auth/Auth.context';
-import * as Yup from 'yup';
-import FormikTextControl from '../form/FormikTextInput.component';
+import * as firebase from 'firebase';
 import { FormikValues, useFormik } from 'formik';
-import { AccountsStackParamList, Account } from '../accounts/types';
+import * as React from 'react';
+import { StyleSheet } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import uuid from 'uuid-random';
-import useCategories from '../categories/use-categories.hook';
+import * as Yup from 'yup';
+import { Transaction } from '../accounts/types';
+import { AuthContext } from '../auth/Auth.context';
+import TransactionForm from './TransactionForm.component';
+import {
+  TransactionDetailsScreenNavProp,
+  TransactionDetailsScreenRouteProp,
+} from './types';
+import useTransactionDetails from './use-transaction-details.hook';
+import LoadingSpinner from '../common/LoadingSpinner.component';
+import { formatDate } from '../../utils/format-date.utils';
+import MenuIcon from '../common/icons/MenuIcon.component';
+import DeleteIcon from '../common/icons/DeleteIcon.component';
+import BackIcon from '../common/icons/BackIcon.component';
 
 const styles = StyleSheet.create({
   container: {
@@ -46,50 +52,57 @@ const styles = StyleSheet.create({
   },
 });
 
-type CreateAccountScreenNavProp = StackNavigationProp<
-  AccountsStackParamList,
-  'CreateAccount'
->;
-
-type AccountsProps = {
-  navigation: CreateAccountScreenNavProp;
+type TransactionsProps = {
+  navigation: TransactionDetailsScreenNavProp;
+  route: TransactionDetailsScreenRouteProp;
 };
 
-const CreateAccountScreen: React.FunctionComponent<AccountsProps> = props => {
-  const { navigation } = props;
+const CreateTransactionScreen: React.FunctionComponent<TransactionsProps> = props => {
+  const { navigation, route } = props;
   const authContext = React.useContext(AuthContext);
 
-  const createAccount = React.useCallback(async (values: Account): Promise<
-    string
-  > => {
-    const db = firebase.firestore();
-    try {
-      db.collection('accounts')
-        .doc(values.id)
-        .set(values);
-    } catch (err) {
-      return err.message;
-    }
-    return '';
-  }, []);
+  const transactionId = route.params.transactionId;
+  const [initializing, setInitializing] = React.useState(false);
+  const [initErrorMsg, setInitErrorMsg] = React.useState('');
+  const transaction = useTransactionDetails(
+    authContext,
+    transactionId,
+    setInitializing,
+    setInitErrorMsg,
+  );
+  if (initErrorMsg) {
+    console.error(initErrorMsg);
+  }
+  console.log('transaction', transactionId, transaction);
+
+  const updateTransaction = React.useCallback(
+    async (values: Transaction): Promise<string> => {
+      const db = firebase.firestore();
+      try {
+        db.collection('transactions')
+          .doc(values.id)
+          .update(values);
+      } catch (err) {
+        return err.message;
+      }
+      return '';
+    },
+    [],
+  );
 
   const schema = React.useMemo(
     () =>
       Yup.object().shape({
-        name: Yup.string().required(),
-        description: Yup.string().required(),
-        balance: Yup.number().required(),
+        description: Yup.string().required('Required'),
+        amount: Yup.number().required('Required'),
+        category: Yup.string().required('Please select a category'),
+        type: Yup.string().required('Required'),
       }),
     [],
   );
 
   const [serverError, setServerError] = React.useState('');
   const [loading, setLoading] = React.useState(false);
-  const LoadingIndicator = (loadingProps: any): React.ReactElement => (
-    <View style={[loadingProps.style, styles.indicator]}>
-      <Spinner status="basic" size="small" />
-    </View>
-  );
 
   const userId = React.useMemo(() => {
     if (authContext.state.user) {
@@ -98,39 +111,37 @@ const CreateAccountScreen: React.FunctionComponent<AccountsProps> = props => {
     return null;
   }, [authContext.state.user]);
 
-  const formik = useFormik({
-    initialValues: {
-      name: '',
-      description: '',
-      balance: '',
-    } as FormikValues,
-    onSubmit: async values => {
+  const initialValues = React.useMemo(() => {
+    if (transaction) {
+      return {
+        description: transaction.description,
+        category: transaction.category,
+        amount: transaction.amount.toFixed(2),
+        type: transaction.amount > 0 ? 'receive' : 'spend',
+      };
+    }
+  }, [transaction]);
+  const onSubmit = React.useCallback(
+    async values => {
       setServerError('');
       setLoading(true);
-      const { name, description, balance } = schema.cast(values);
-      const errorMsg = await createAccount({
-        id: uuid(),
-        name,
+      const { description, amount, category, type } = schema.cast(values);
+      const errorMsg = await updateTransaction({
+        id: transaction && transaction.id,
         description,
-        startingBalance: balance,
-        currentBalance: balance,
+        category: category,
+        amount: type === 'spend' ? amount * -1 : amount,
         orgId: userId,
-        createdBy: userId,
         updatedBy: userId,
-        createdAt: new Date().toISOString(),
         updatedAt: new Date().toISOString(),
-      } as Account);
+      } as Transaction);
       setLoading(false);
       setServerError(errorMsg);
       if (!errorMsg) {
         navigation.goBack();
       }
     },
-    validationSchema: schema,
-  });
-
-  const BackIcon = (iconProps: any): React.ReactElement => (
-    <Icon {...iconProps} name="arrow-back" />
+    [navigation, schema, transaction, updateTransaction, userId],
   );
 
   const BackAction = (): React.ReactElement => (
@@ -140,76 +151,51 @@ const CreateAccountScreen: React.FunctionComponent<AccountsProps> = props => {
     />
   );
 
+  const [menuVisible, setMenuVisible] = React.useState(false);
+
+  const toggleMenu = (): void => {
+    setMenuVisible(!menuVisible);
+  };
+
+  const renderMenuAction = (): React.ReactElement => (
+    <TopNavigationAction icon={MenuIcon} onPress={toggleMenu} />
+  );
+
+  const renderRightActions = (): React.ReactElement => (
+    <>
+      <OverflowMenu
+        anchor={renderMenuAction}
+        visible={menuVisible}
+        onBackdropPress={toggleMenu}
+      >
+        <MenuItem accessoryLeft={DeleteIcon} title="Delete" />
+      </OverflowMenu>
+    </>
+  );
+
   return (
     <SafeAreaView style={{ flex: 1 }}>
       <TopNavigation
-        title="Create Account"
+        title={transaction ? transaction.description : 'Activity Details'}
+        subtitle={transaction ? formatDate(transaction.createdAt) : undefined}
         alignment="center"
         accessoryLeft={BackAction}
+        accessoryRight={renderRightActions}
       />
       <Divider />
-      <KeyboardAvoidingView style={{ flex: 1 }} behavior="padding" enabled>
-        <Layout style={styles.container}>
-          {/* {console.log('values', formik.values)} */}
-          {/* {console.log('errors', formik.errors)} */}
-          <FormikTextControl
-            name="name"
-            label="Name"
-            placeholder="Name"
-            formikProps={formik}
-            icon="hash"
-            inputProps={{
-              disabled: loading,
-              size: 'medium',
-            }}
-          />
-          <FormikTextControl
-            name="description"
-            label="Description"
-            placeholder="Description"
-            formikProps={formik}
-            icon="info"
-            inputProps={{
-              disabled: loading,
-            }}
-            multiline
-          />
-          <FormikTextControl
-            name="balance"
-            label="Starting Balance"
-            placeholder="0.00"
-            formikProps={formik}
-            icon="currency-usd"
-            iconPack="material"
-            inputProps={{
-              disabled: loading,
-              multiline: true,
-              keyboardType: 'decimal-pad',
-            }}
-          />
-          {!!serverError && <Text category="danger">{serverError}</Text>}
-          <View style={styles.buttonsRow}>
-            <Button
-              style={styles.button}
-              status="basic"
-              onPress={(): void => navigation.goBack()}
-            >
-              Cancel
-            </Button>
-            <Button
-              style={styles.button}
-              status="primary"
-              onPress={(): Promise<void> => formik.submitForm()}
-              accessoryRight={loading ? LoadingIndicator : undefined}
-            >
-              Create Account
-            </Button>
-          </View>
-          {/* <Button appearance="ghost" onPress={() => navigation.navigate('ForgotPassword')}>Forgot Password</Button> */}
-        </Layout>
-      </KeyboardAvoidingView>
+      {initialValues && (
+        <TransactionForm
+          navigation={navigation}
+          initialValues={initialValues}
+          onSubmit={onSubmit}
+          schema={schema}
+          loading={loading}
+          serverError={serverError}
+        />
+      )}
+      {initializing && <LoadingSpinner />}
     </SafeAreaView>
   );
 };
 
-export default CreateAccountScreen;
+export default CreateTransactionScreen;

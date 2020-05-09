@@ -1,9 +1,11 @@
+import moment from 'moment';
+
 export function formatDate(isoDate: string): string {
   const date = new Date(isoDate);
-  return `${date.getFullYear()}-${date.getMonth()}-${date.getDate()}`;
+  return moment(date).format('D MMM YYYY');
 }
 
 export function formatDateTime(isoDate: string): string {
   const date = new Date(isoDate);
-  return `${date.getFullYear()}-${date.getMonth()}-${date.getDate()} ${date.getHours()}:${date.getMinutes()}`;
+  return moment(date).format('D MMM YYYY HH:mm');
 }

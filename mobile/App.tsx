@@ -10,6 +10,7 @@ import {
 } from '@ui-kitten/components';
 import { EvaIconsPack } from '@ui-kitten/eva-icons';
 import { MaterialCommunityIconsPack } from './src/modules/common/icons/MaterialCommunityIcons.pack';
+import { FontAwesome5IconsPack } from './src/modules/common/icons/FontAwesome5Icons.pack';
 import * as firebase from 'firebase';
 // Optionally import the services that you want to use
 import 'firebase/auth';
@@ -76,7 +77,13 @@ const DrawerNavigator: React.FunctionComponent = () => (
 function App(): React.ReactElement {
   return (
     <>
-      <IconRegistry icons={[EvaIconsPack, MaterialCommunityIconsPack]} />
+      <IconRegistry
+        icons={[
+          EvaIconsPack,
+          MaterialCommunityIconsPack,
+          FontAwesome5IconsPack,
+        ]}
+      />
       <ApplicationProvider {...eva} theme={eva.light}>
         <AuthContextProvider>
           {(context: AuthContextType): React.ReactElement => (

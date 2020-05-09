@@ -12,7 +12,7 @@ interface Props {
   item: Transaction;
   navigation: AccountDetailsScreenNavProp;
   categories: CategoryObject;
-  eva: any;
+  eva?: any;
 }
 
 const TransactionListItem: React.FunctionComponent<Props> = props => {
@@ -22,10 +22,12 @@ const TransactionListItem: React.FunctionComponent<Props> = props => {
 
   return (
     <ListItem
-      // title={item.description}
-      // description={item.category}
       accessoryRight={ForwardIcon}
-      onPress={(): void => navigation.navigate('TransactionDetails')}
+      onPress={(): void =>
+        navigation.navigate('TransactionDetails', {
+          transactionId: item.id,
+        })
+      }
     >
       <View style={eva.style.item}>
         <View style={eva.style.left}>
@@ -91,6 +93,7 @@ const ThemedTransactionListItem = withStyles(TransactionListItem, theme => ({
     height: 20,
     width: 20,
     marginRight: 4,
+    color: 'white',
   },
   categoryLabel: {
     fontSize: 12,
