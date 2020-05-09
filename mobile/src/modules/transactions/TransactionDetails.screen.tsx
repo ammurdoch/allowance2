@@ -17,8 +17,9 @@ import { AuthContext } from '../auth/Auth.context';
 import * as Yup from 'yup';
 import FormikTextControl from '../form/FormikTextInput.component';
 import { FormikValues, useFormik } from 'formik';
-import { AccountsStackParamList, Account } from './types';
+import { AccountsStackParamList, Account } from '../accounts/types';
 import uuid from 'uuid-random';
+import useCategories from '../categories/use-categories.hook';
 
 const styles = StyleSheet.create({
   container: {

@@ -37,3 +37,8 @@ export type Transaction = {
   createdAt: string;
   updatedAt: string;
 };
+
+export type AccountDetailsScreenNavProp = StackNavigationProp<
+  AccountsStackParamList,
+  'AccountDetails'
+>;

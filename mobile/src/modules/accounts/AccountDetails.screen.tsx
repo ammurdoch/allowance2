@@ -18,7 +18,12 @@ import { RootStackParamList } from '../../../types';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import * as firebase from 'firebase';
 import { AuthContext } from '../auth/Auth.context';
-import { AccountsStackParamList, Account, Transaction } from './types';
+import {
+  AccountsStackParamList,
+  Account,
+  Transaction,
+  AccountDetailsScreenNavProp,
+} from './types';
 import { createDrawerNavigator } from '@react-navigation/drawer';
 import { RouteProp } from '@react-navigation/native';
 import BackIcon from '../common/icons/BackIcon.component';
@@ -27,8 +32,11 @@ import createTopNavBackAction from '../common/createBack.topNavAction';
 import ForwardIcon from '../common/icons/ForwardIcon.component';
 import PlusIcon from '../common/icons/PlusIcon.component';
 import formatMoney from '../../utils/format-money.utils';
-import useTransactions from './use-transactions.hook';
+import useTransactions from '../transactions/use-transactions.hook';
 import settings from '../../settings';
+import TransactionListItem from '../transactions/TransactionListItem.component';
+import useCategories from '../categories/use-categories.hook';
+import { Category, CategoryObject } from '../categories/types';
 
 const styles = StyleSheet.create({
   container: {
@@ -67,10 +75,6 @@ const styles = StyleSheet.create({
   },
 });
 
-type AccountDetailsScreenNavProp = StackNavigationProp<
-  AccountsStackParamList,
-  'AccountDetails'
->;
 type AccountDetailsScreenRouteProp = RouteProp<
   AccountsStackParamList,
   'AccountDetails'
@@ -126,18 +130,23 @@ const AccountDetailsScreen: React.FunctionComponent<AccountsProps> = props => {
     </View>
   );
 
+  const categories = useCategories();
+
   const renderItem = (
     itemProps: ListRenderItemInfo<Transaction>,
   ): React.ReactElement => (
-    <ListItem
-      title={itemProps.item.description}
-      description={itemProps.item.category}
-      accessoryRight={ForwardIcon}
-      onPress={(): void => navigation.navigate('TransactionDetails')}
+    // <ListItem
+    //   title={itemProps.item.description}
+    //   description={itemProps.item.category}
+    //   accessoryRight={ForwardIcon}
+    //   onPress={(): void => navigation.navigate('TransactionDetails')}
+    // />
+    <TransactionListItem
+      categories={categories}
+      item={itemProps.item}
+      navigation={navigation}
     />
   );
-
-  console.log('tResult', tResult);
 
   return (
     <SafeAreaView style={{ flex: 1 }}>

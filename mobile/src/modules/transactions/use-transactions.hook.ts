@@ -1,4 +1,4 @@
-import { Transaction } from './types';
+import { Transaction } from '../accounts/types';
 import * as React from 'react';
 import * as firebase from 'firebase';
 

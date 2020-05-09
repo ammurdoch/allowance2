@@ -17,9 +17,12 @@ import { AuthContext } from '../auth/Auth.context';
 import * as Yup from 'yup';
 import FormikTextControl from '../form/FormikTextInput.component';
 import { FormikValues, useFormik } from 'formik';
-import { AccountsStackParamList, Transaction } from './types';
+import { AccountsStackParamList, Transaction } from '../accounts/types';
 import uuid from 'uuid-random';
 import { RouteProp } from '@react-navigation/native';
+import FormikSelectControl from '../form/FormikSelectInput.component';
+import useCategories from '../categories/use-categories.hook';
+import { CreateTransactionScreenNavProp, CreateTransactionScreenRouteProp } from './types';
 
 const styles = StyleSheet.create({
   container: {
@@ -46,15 +49,6 @@ const styles = StyleSheet.create({
   },
 });
 
-type CreateTransactionScreenNavProp = StackNavigationProp<
-  AccountsStackParamList,
-  'CreateTransaction'
->;
-type CreateTransactionScreenRouteProp = RouteProp<
-  AccountsStackParamList,
-  'CreateTransaction'
->;
-
 type TransactionsProps = {
   navigation: CreateTransactionScreenNavProp;
   route: CreateTransactionScreenRouteProp;
@@ -64,10 +58,12 @@ const CreateTransactionScreen: React.FunctionComponent<TransactionsProps> = prop
   const { navigation, route } = props;
   const authContext = React.useContext(AuthContext);
 
+  const _categories = useCategories();
+  const categories = Object.values(_categories);
+
   const createTransaction = React.useCallback(
     async (values: Transaction): Promise<string> => {
       const db = firebase.firestore();
-      console.log('create transaction', values);
       try {
         db.collection('transactions')
           .doc(values.id)
@@ -83,8 +79,10 @@ const CreateTransactionScreen: React.FunctionComponent<TransactionsProps> = prop
   const schema = React.useMemo(
     () =>
       Yup.object().shape({
-        description: Yup.string().required(),
-        amount: Yup.number().required(),
+        description: Yup.string().required('Required'),
+        amount: Yup.number().required('Required'),
+        category: Yup.string().required('Please select a category'),
+        type: Yup.string().required('Required'),
       }),
     [],
   );
@@ -107,17 +105,19 @@ const CreateTransactionScreen: React.FunctionComponent<TransactionsProps> = prop
   const formik = useFormik({
     initialValues: {
       description: '',
+      category: '',
       amount: '',
+      type: '',
     } as FormikValues,
     onSubmit: async values => {
       setServerError('');
       setLoading(true);
-      const { description, amount } = schema.cast(values);
+      const { description, amount, category, type } = schema.cast(values);
       const errorMsg = await createTransaction({
         id: uuid(),
         description,
-        category: '',
-        amount,
+        category: category,
+        amount: type === 'spend' ? amount * -1 : amount,
         accountId: route.params.accountId,
         orgId: userId,
         createdBy: userId,
@@ -167,6 +167,39 @@ const CreateTransactionScreen: React.FunctionComponent<TransactionsProps> = prop
               disabled: loading,
             }}
             multiline
+          />
+          <FormikSelectControl
+            name="type"
+            label="Did you spend money or receive money?"
+            placeholder="Choose an option"
+            formikProps={formik}
+            icon="swap-outline"
+            iconPack="eva"
+            inputProps={{
+              disabled: loading,
+            }}
+            options={[
+              {
+                label: 'Spent money',
+                value: 'spend',
+              },
+              {
+                label: 'Received money',
+                value: 'receive',
+              },
+            ]}
+          />
+          <FormikSelectControl
+            name="category"
+            label="Category"
+            placeholder="Choose a category"
+            formikProps={formik}
+            icon="shopping-cart"
+            iconPack="eva"
+            inputProps={{
+              disabled: loading,
+            }}
+            options={categories}
           />
           <FormikTextControl
             name="amount"

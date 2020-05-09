@@ -4,8 +4,8 @@ import AccountsScreen from './Accounts.screen';
 import AccountDetailsScreen from './AccountDetails.screen';
 import CreateAccountScreen from './CreateAccount.screen';
 import EditAccountScreen from './EditAccount.screen';
-import CreateTransactionScreen from './CreateTransaction.screen';
-import TransactionDetailsScreen from './TransactionDetails.screen';
+import CreateTransactionScreen from '../transactions/CreateTransaction.screen';
+import TransactionDetailsScreen from '../transactions/TransactionDetails.screen';
 
 const Stack = createStackNavigator();
 
