@@ -1,11 +1,12 @@
 import * as React from 'react';
 import * as firebase from 'firebase';
-import { Transaction, Account } from '../accounts/types';
+import { Account } from './types';
 import YesNoDialog from '../common/YesNoDialog.modal';
 import { View, StyleSheet } from 'react-native';
 import { Text } from '@ui-kitten/components';
-import { TransactionDetailsScreenNavProp } from './types';
+import { AccountDetailsScreenNavProp } from './types';
 import { formatDate } from '../../utils/format-date.utils';
+import formatMoney from '../../utils/format-money.utils';
 
 const styles = StyleSheet.create({
   container: {
@@ -25,47 +26,34 @@ const styles = StyleSheet.create({
 });
 
 interface Props {
-  showDelete?: Transaction;
+  showDelete?: Account;
   setShowDelete: any;
-  navigation: TransactionDetailsScreenNavProp;
-  account: Account;
+  navigation: AccountDetailsScreenNavProp;
 }
 
-const DeleteTransaction: React.FunctionComponent<Props> = props => {
-  const { showDelete, setShowDelete, navigation, account } = props;
+const DeleteAccount: React.FunctionComponent<Props> = props => {
+  const { showDelete, setShowDelete, navigation } = props;
 
   const [loading, setLoading] = React.useState(false);
   const [errorMsg, setErrorMsg] = React.useState('');
-  const handleDeleteTransaction = React.useCallback(async (): Promise<void> => {
+  const handleDeleteAccount = React.useCallback(async (): Promise<void> => {
     if (showDelete) {
       setLoading(true);
       const db = firebase.firestore();
       try {
         await db
-          .collection('transactions')
+          .collection('accounts')
           .doc(showDelete.id)
           .delete();
-        await db
-          .collection('accounts')
-          .doc(account.id)
-          .update({
-            currentBalance: account.currentBalance - showDelete.amount,
-          });
         setErrorMsg('');
       } catch (err) {
         setErrorMsg(err.message);
       }
       setLoading(false);
       setShowDelete(null);
-      navigation.goBack();
+      navigation.navigate('Accounts');
     }
-  }, [
-    account.currentBalance,
-    account.id,
-    navigation,
-    setShowDelete,
-    showDelete,
-  ]);
+  }, [navigation, setShowDelete, showDelete]);
 
   const doCancel = (): void => {
     setShowDelete(null);
@@ -75,29 +63,30 @@ const DeleteTransaction: React.FunctionComponent<Props> = props => {
 
   return (
     <YesNoDialog
-      title="Delete Activity"
+      title="Delete Account"
       question={
         <View style={styles.question}>
           <Text style={styles.question1}>
-            Are you sure you want to delete this activity?
+            Are you sure you want to delete this account?
           </Text>
-          <Text style={styles.question2}>
-            {showDelete &&
-              `${formatDate(showDelete.createdAt)} "${showDelete.description}"`}
-          </Text>
+          {showDelete && (
+            <Text style={styles.question2}>
+              {`${showDelete.name} (${formatMoney(showDelete.currentBalance)})`}
+            </Text>
+          )}
         </View>
       }
       yesText="Delete"
       noText="Cancel"
-      handleYes={handleDeleteTransaction}
+      handleYes={handleDeleteAccount}
       handleNo={doCancel}
       handleCancel={doCancel}
       show={!!showDelete}
       loading={loading}
-      loadingMsg={`Deleting "${showDelete && showDelete.description}"`}
+      loadingMsg={`Deleting "${showDelete && showDelete.name}"`}
       errorMsg={errorMsg}
     />
   );
 };
 
-export default DeleteTransaction;
+export default DeleteAccount;

@@ -10,6 +10,23 @@ const styles = StyleSheet.create({
   backdrop: {
     backgroundColor: 'rgba(0, 0, 0, 0.5)',
   },
+  header: {
+    paddingHorizontal: 16,
+    paddingVertical: 12,
+    textAlign: 'center',
+  },
+  footer: {
+    flexDirection: 'row',
+    justifyContent: 'center',
+    padding: 12,
+  },
+  footerBtn: {
+    marginHorizontal: 8,
+  },
+  loadingMsg: {
+    textAlign: 'center',
+    fontWeight: 'bold',
+  },
 });
 
 interface Props {
@@ -43,21 +60,25 @@ const YesNoDialog = (props: Props): React.ReactElement => {
     cardProps = {},
   } = props;
 
-  const renderHeader = (): React.ReactElement => <Text>{title}</Text>;
+  const renderHeader = (): React.ReactElement => (
+    <Text category="h4" style={styles.header}>
+      {title}
+    </Text>
+  );
 
   const renderFooter = (): React.ReactElement => (
-    <View>
+    <>
       {!loading && (
-        <>
-          <Button status="basic" onPress={handleNo}>
+        <View style={styles.footer}>
+          <Button status="basic" onPress={handleNo} style={styles.footerBtn}>
             {noText}
           </Button>
           <Button status="primary" onPress={handleYes}>
             {yesText}
           </Button>
-        </>
+        </View>
       )}
-    </View>
+    </>
   );
 
   return (
@@ -75,10 +96,12 @@ const YesNoDialog = (props: Props): React.ReactElement => {
         {loading && (
           <View>
             <LoadingSpinner />
-            {loadingMsg && <Text>{loadingMsg}</Text>}
+            {!!loadingMsg && (
+              <Text style={styles.loadingMsg}>{loadingMsg}</Text>
+            )}
           </View>
         )}
-        {!loading && <Text>{question}</Text>}
+        {!loading && question}
         {!!errorMsg && <Text category="danger">{errorMsg}</Text>}
       </Card>
     </Modal>

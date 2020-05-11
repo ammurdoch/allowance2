@@ -13,6 +13,8 @@ import {
   List,
   ListItem,
   Button,
+  OverflowMenu,
+  MenuItem,
 } from '@ui-kitten/components';
 import { RootStackParamList } from '../../../types';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -37,6 +39,11 @@ import settings from '../../settings';
 import TransactionListItem from '../transactions/TransactionListItem.component';
 import useCategories from '../categories/use-categories.hook';
 import { Category, CategoryObject } from '../categories/types';
+import DeleteIcon from '../common/icons/DeleteIcon.component';
+import MyOverflowMenu from '../common/MyOverflowMenu.component';
+import DeleteAccount from './DeleteAccount.container';
+import EditIcon from '../common/icons/EditIcon.component copy';
+import useSubcribeAccount from './use-subscrıbe-account.hook';
 
 const styles = StyleSheet.create({
   container: {
@@ -88,28 +95,14 @@ type AccountsProps = {
 const AccountDetailsScreen: React.FunctionComponent<AccountsProps> = props => {
   const { navigation, route } = props;
   const authContext = React.useContext(AuthContext);
-  const [account, setAccount] = React.useState<Account | null>(null);
   const [loading, setLoading] = React.useState(false);
   const [errorMsg, setErrorMsg] = React.useState('');
-  React.useEffect(() => {
-    async function asyncBootstrap(): Promise<void> {
-      setLoading(true);
-      const db = firebase.firestore();
-      try {
-        const accountDoc = await db
-          .collection('accounts')
-          .doc(route.params.accountId)
-          .get();
-        setAccount(accountDoc.data() as Account);
-      } catch (err) {
-        setErrorMsg(err.message);
-      }
-      setLoading(false);
-    }
-    if (authContext.state.user) {
-      asyncBootstrap();
-    }
-  }, [authContext.state.user, route.params.accountId]);
+  const account = useSubcribeAccount(
+    authContext,
+    route.params.accountId,
+    setLoading,
+    setErrorMsg,
+  );
 
   const tResult = useTransactions(
     route.params.accountId,
@@ -129,12 +122,31 @@ const AccountDetailsScreen: React.FunctionComponent<AccountsProps> = props => {
     </View>
   );
 
+  const onMenuSelect = (row: number): void => {
+    if (row === 0) {
+      navigation.navigate('EditAccount', {
+        accountId: account && account.id,
+      });
+    }
+  };
+
+  const renderRightActions = (): React.ReactElement => (
+    <>
+      {account && (
+        <MyOverflowMenu onSelect={onMenuSelect}>
+          <MenuItem accessoryLeft={EditIcon} title="Edit" />
+        </MyOverflowMenu>
+      )}
+    </>
+  );
+
   const categories = useCategories();
 
   const renderItem = (
     itemProps: ListRenderItemInfo<Transaction>,
   ): React.ReactElement => (
     <TransactionListItem
+      account={account}
       categories={categories}
       item={itemProps.item}
       navigation={navigation}
@@ -147,6 +159,7 @@ const AccountDetailsScreen: React.FunctionComponent<AccountsProps> = props => {
         title={route.params.title}
         alignment="center"
         accessoryLeft={createTopNavBackAction(navigation)}
+        accessoryRight={renderRightActions}
       />
       <Divider />
       <Layout style={styles.container}>
@@ -169,7 +182,7 @@ const AccountDetailsScreen: React.FunctionComponent<AccountsProps> = props => {
                   <Button
                     onPress={(): void =>
                       navigation.navigate('CreateTransaction', {
-                        accountId: route.params.accountId,
+                        account,
                       })
                     }
                     style={styles.addNewButton}

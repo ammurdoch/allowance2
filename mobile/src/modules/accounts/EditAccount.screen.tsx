@@ -1,71 +1,67 @@
+import { RouteProp } from '@react-navigation/native';
 import { StackNavigationProp } from '@react-navigation/stack';
-import * as React from 'react';
-import * as firebase from 'firebase';
-import { StyleSheet, View, KeyboardAvoidingView } from 'react-native';
 import {
-  Layout,
-  Text,
-  TopNavigation,
   Divider,
-  Spinner,
-  Button,
-  TopNavigationAction,
   Icon,
+  MenuItem,
+  TopNavigation,
+  TopNavigationAction,
 } from '@ui-kitten/components';
+import * as firebase from 'firebase';
+import * as React from 'react';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { AuthContext } from '../auth/Auth.context';
 import * as Yup from 'yup';
-import FormikTextControl from '../form/FormikTextInput.component';
-import { FormikValues, useFormik } from 'formik';
-import { AccountsStackParamList, Account } from './types';
-import uuid from 'uuid-random';
+import { AuthContext } from '../auth/Auth.context';
+import DeleteIcon from '../common/icons/DeleteIcon.component';
+import LoadingSpinner from '../common/LoadingSpinner.component';
+import MyOverflowMenu from '../common/MyOverflowMenu.component';
+import { CreateTransactionScreenNavProp } from '../transactions/types';
+import AccountForm from './AccountForm.component';
+import DeleteAccount from './DeleteAccount.container';
+import { Account, AccountsStackParamList } from './types';
+import useAccount from './use-account.hook';
 
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    padding: 16,
-  },
-  loading: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  indicator: {
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  button: {
-    marginLeft: 4,
-    marginRight: 4,
-  },
-  buttonsRow: {
-    marginTop: 8,
-    justifyContent: 'center',
-    flexDirection: 'row',
-  },
-});
-
-type CreateAccountScreenNavProp = StackNavigationProp<
+type EditAccountScreenNavProp = StackNavigationProp<
   AccountsStackParamList,
-  'CreateAccount'
+  'EditAccount'
+>;
+
+export type EditAccountScreenRouteProp = RouteProp<
+  AccountsStackParamList,
+  'EditAccount'
 >;
 
 type AccountsProps = {
-  navigation: CreateAccountScreenNavProp;
+  navigation: EditAccountScreenNavProp;
+  route: EditAccountScreenRouteProp;
 };
 
-const CreateAccountScreen: React.FunctionComponent<AccountsProps> = props => {
-  const { navigation } = props;
+const EditAccountScreen: React.FunctionComponent<AccountsProps> = props => {
+  const { navigation, route } = props;
   const authContext = React.useContext(AuthContext);
 
-  const createAccount = React.useCallback(async (values: Account): Promise<
+  const accountId = route.params.accountId;
+  const [initializing, setInitializing] = React.useState(false);
+  const [initErrorMsg, setInitErrorMsg] = React.useState('');
+  const account = useAccount(
+    authContext,
+    accountId,
+    setInitializing,
+    setInitErrorMsg,
+  );
+  if (initErrorMsg) {
+    console.error(initErrorMsg);
+  }
+
+  const updateAccount = React.useCallback(async (values: Account): Promise<
     string
   > => {
     const db = firebase.firestore();
     try {
-      db.collection('accounts')
+      await db
+        .collection('accounts')
         .doc(values.id)
-        .set(values);
+        .update(values);
     } catch (err) {
       return err.message;
     }
@@ -84,11 +80,6 @@ const CreateAccountScreen: React.FunctionComponent<AccountsProps> = props => {
 
   const [serverError, setServerError] = React.useState('');
   const [loading, setLoading] = React.useState(false);
-  const LoadingIndicator = (loadingProps: any): React.ReactElement => (
-    <View style={[loadingProps.style, styles.indicator]}>
-      <Spinner status="basic" size="small" />
-    </View>
-  );
 
   const userId = React.useMemo(() => {
     if (authContext.state.user) {
@@ -97,36 +88,36 @@ const CreateAccountScreen: React.FunctionComponent<AccountsProps> = props => {
     return null;
   }, [authContext.state.user]);
 
-  const formik = useFormik({
-    initialValues: {
-      name: '',
-      description: '',
-      balance: '',
-    } as FormikValues,
-    onSubmit: async values => {
-      setServerError('');
-      setLoading(true);
-      const { name, description, balance } = schema.cast(values);
-      const errorMsg = await createAccount({
-        id: uuid(),
-        name,
-        description,
-        startingBalance: balance,
-        currentBalance: balance,
-        orgId: userId,
-        createdBy: userId,
-        updatedBy: userId,
-        createdAt: new Date().toISOString(),
-        updatedAt: new Date().toISOString(),
-      } as Account);
-      setLoading(false);
-      setServerError(errorMsg);
-      if (!errorMsg) {
-        navigation.goBack();
-      }
-    },
-    validationSchema: schema,
-  });
+  const initialValues = React.useMemo(() => {
+    if (account) {
+      return {
+        name: account.name,
+        description: account.description,
+        balance: String(account.startingBalance),
+      };
+    }
+  }, [account]);
+
+  const onSubmit = async (values: any): Promise<void> => {
+    setServerError('');
+    setLoading(true);
+    const { name, description, balance } = schema.cast(values);
+    const errorMsg = await updateAccount({
+      id: account && account.id,
+      name,
+      description,
+      startingBalance: balance,
+      currentBalance: balance,
+      orgId: userId,
+      updatedBy: userId,
+      updatedAt: new Date().toISOString(),
+    } as Account);
+    setLoading(false);
+    setServerError(errorMsg);
+    if (!errorMsg) {
+      navigation.goBack();
+    }
+  };
 
   const BackIcon = (iconProps: any): React.ReactElement => (
     <Icon {...iconProps} name="arrow-back" />
@@ -139,76 +130,53 @@ const CreateAccountScreen: React.FunctionComponent<AccountsProps> = props => {
     />
   );
 
+  const [showDelete, setShowDelete] = React.useState<Account | undefined>();
+
+  const onMenuSelect = (row: number): void => {
+    if (row === 0) {
+      setShowDelete(account);
+    }
+  };
+
+  const renderRightActions = (): React.ReactElement => (
+    <>
+      {account && (
+        <MyOverflowMenu onSelect={onMenuSelect}>
+          <MenuItem accessoryLeft={DeleteIcon} title="Delete" />
+        </MyOverflowMenu>
+      )}
+    </>
+  );
+
   return (
     <SafeAreaView style={{ flex: 1 }}>
       <TopNavigation
-        title="Create Account"
+        title={account ? account.name : 'Edit Account Details'}
+        subtitle={account ? account.description : undefined}
         alignment="center"
         accessoryLeft={BackAction}
+        accessoryRight={renderRightActions}
       />
       <Divider />
-      <KeyboardAvoidingView style={{ flex: 1 }} behavior="padding" enabled>
-        <Layout style={styles.container}>
-          {/* {console.log('values', formik.values)} */}
-          {/* {console.log('errors', formik.errors)} */}
-          <FormikTextControl
-            name="name"
-            label="Name"
-            placeholder="Name"
-            formikProps={formik}
-            icon="hash"
-            inputProps={{
-              disabled: loading,
-              size: 'medium',
-            }}
-          />
-          <FormikTextControl
-            name="description"
-            label="Description"
-            placeholder="Description"
-            formikProps={formik}
-            icon="info"
-            inputProps={{
-              disabled: loading,
-            }}
-            multiline
-          />
-          <FormikTextControl
-            name="balance"
-            label="Starting Balance"
-            placeholder="0.00"
-            formikProps={formik}
-            icon="currency-usd"
-            iconPack="material"
-            inputProps={{
-              disabled: loading,
-              multiline: true,
-              keyboardType: 'decimal-pad',
-            }}
-          />
-          {!!serverError && <Text category="danger">{serverError}</Text>}
-          <View style={styles.buttonsRow}>
-            <Button
-              style={styles.button}
-              status="basic"
-              onPress={(): void => navigation.goBack()}
-            >
-              Cancel
-            </Button>
-            <Button
-              style={styles.button}
-              status="primary"
-              onPress={(): Promise<void> => formik.submitForm()}
-              accessoryRight={loading ? LoadingIndicator : undefined}
-            >
-              Create Account
-            </Button>
-          </View>
-          {/* <Button appearance="ghost" onPress={() => navigation.navigate('ForgotPassword')}>Forgot Password</Button> */}
-        </Layout>
-      </KeyboardAvoidingView>
+      <DeleteAccount
+        showDelete={showDelete}
+        setShowDelete={setShowDelete}
+        navigation={navigation}
+      />
+      {initialValues && (
+        <AccountForm
+          navigation={navigation as CreateTransactionScreenNavProp}
+          initialValues={initialValues}
+          onSubmit={onSubmit}
+          schema={schema}
+          loading={loading}
+          serverError={serverError}
+          submitText="Save Account"
+        />
+      )}
+      {initializing && <LoadingSpinner />}
     </SafeAreaView>
   );
 };
 
-export default CreateAccountScreen;
+export default EditAccountScreen;

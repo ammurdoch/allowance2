@@ -31,15 +31,23 @@ const CreateTransactionScreen: React.FunctionComponent<TransactionsProps> = prop
     async (values: Transaction): Promise<string> => {
       const db = firebase.firestore();
       try {
-        db.collection('transactions')
+        await db
+          .collection('transactions')
           .doc(values.id)
           .set(values);
+        const { account } = route.params;
+        await db
+          .collection('accounts')
+          .doc(account.id)
+          .update({
+            currentBalance: account.currentBalance + values.amount,
+          });
       } catch (err) {
         return err.message;
       }
       return '';
     },
-    [],
+    [route.params],
   );
 
   const schema = React.useMemo(
@@ -78,7 +86,7 @@ const CreateTransactionScreen: React.FunctionComponent<TransactionsProps> = prop
       description,
       category: category,
       amount: type === 'spend' ? amount * -1 : amount,
-      accountId: route.params.accountId,
+      accountId: route.params.account.id,
       orgId: userId,
       createdBy: userId,
       updatedBy: userId,

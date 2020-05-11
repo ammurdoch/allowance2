@@ -2,7 +2,11 @@ import { ListItem, Text, Icon } from '@ui-kitten/components';
 import * as React from 'react';
 import { View } from 'react-native';
 import { formatDate } from '../../utils/format-date.utils';
-import { AccountDetailsScreenNavProp, Transaction } from '../accounts/types';
+import {
+  AccountDetailsScreenNavProp,
+  Transaction,
+  Account,
+} from '../accounts/types';
 import ForwardIcon from '../common/icons/ForwardIcon.component';
 import formatMoney from '../../utils/format-money.utils';
 import { CategoryObject } from '../categories/types';
@@ -12,11 +16,12 @@ interface Props {
   item: Transaction;
   navigation: AccountDetailsScreenNavProp;
   categories: CategoryObject;
+  account?: Account;
   eva?: any;
 }
 
 const TransactionListItem: React.FunctionComponent<Props> = props => {
-  const { item, navigation, categories, eva } = props;
+  const { item, navigation, categories, account, eva } = props;
 
   const category = item && categories && categories[item.category];
 
@@ -26,6 +31,7 @@ const TransactionListItem: React.FunctionComponent<Props> = props => {
       onPress={(): void =>
         navigation.navigate('TransactionDetails', {
           transactionId: item.id,
+          account,
         })
       }
     >

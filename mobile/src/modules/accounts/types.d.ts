@@ -2,9 +2,9 @@ export type AccountsStackParamList = {
   Accounts: undefined;
   CreateAccount: undefined;
   AccountDetails: { title: string; accountId: string };
-  EditAccount: undefined;
-  CreateTransaction: { accountId: string };
-  TransactionDetails: { transactionId: string };
+  EditAccount: { accountId: string };
+  CreateTransaction: { account: Account };
+  TransactionDetails: { transactionId: string; account: Account };
 };
 
 export type Account = {

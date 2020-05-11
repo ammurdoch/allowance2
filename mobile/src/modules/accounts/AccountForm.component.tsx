@@ -1,11 +1,10 @@
+import { StackNavigationProp } from '@react-navigation/stack';
 import { Button, Layout, Spinner, Text } from '@ui-kitten/components';
-import { FormikProps, FormikValues, useFormik } from 'formik';
+import { FormikValues, useFormik } from 'formik';
 import * as React from 'react';
 import { KeyboardAvoidingView, StyleSheet, View } from 'react-native';
-import useCategories from '../categories/use-categories.hook';
-import FormikSelectControl from '../form/FormikSelectInput.component';
 import FormikTextControl from '../form/FormikTextInput.component';
-import { CreateTransactionScreenNavProp } from './types';
+import { AccountsStackParamList } from './types';
 
 const styles = StyleSheet.create({
   container: {
@@ -32,16 +31,22 @@ const styles = StyleSheet.create({
   },
 });
 
-type TransactionsProps = {
-  navigation: CreateTransactionScreenNavProp;
+type CreateAccountScreenNavProp = StackNavigationProp<
+  AccountsStackParamList,
+  'CreateAccount'
+>;
+
+type AccountsProps = {
+  navigation: CreateAccountScreenNavProp;
   initialValues: FormikValues;
   onSubmit: any;
   loading: boolean;
   serverError: string;
   schema: any;
+  submitText: string;
 };
 
-const TransactionForm: React.FunctionComponent<TransactionsProps> = props => {
+const AccountForm: React.FunctionComponent<AccountsProps> = props => {
   const {
     navigation,
     initialValues,
@@ -49,16 +54,8 @@ const TransactionForm: React.FunctionComponent<TransactionsProps> = props => {
     schema,
     loading,
     serverError,
+    submitText,
   } = props;
-
-  const formik = useFormik({
-    initialValues,
-    onSubmit,
-    validationSchema: schema,
-  });
-
-  const _categories = useCategories();
-  const categories = Object.values(_categories);
 
   const LoadingIndicator = (loadingProps: any): React.ReactElement => (
     <View style={[loadingProps.style, styles.indicator]}>
@@ -66,11 +63,28 @@ const TransactionForm: React.FunctionComponent<TransactionsProps> = props => {
     </View>
   );
 
+  const formik = useFormik({
+    initialValues,
+    onSubmit,
+    validationSchema: schema,
+  });
+
   return (
     <KeyboardAvoidingView style={{ flex: 1 }} behavior="padding" enabled>
       <Layout style={styles.container}>
         {/* {console.log('values', formik.values)} */}
         {/* {console.log('errors', formik.errors)} */}
+        <FormikTextControl
+          name="name"
+          label="Name"
+          placeholder="Name"
+          formikProps={formik}
+          icon="hash"
+          inputProps={{
+            disabled: loading,
+            size: 'medium',
+          }}
+        />
         <FormikTextControl
           name="description"
           label="Description"
@@ -82,48 +96,16 @@ const TransactionForm: React.FunctionComponent<TransactionsProps> = props => {
           }}
           multiline
         />
-        <FormikSelectControl
-          name="type"
-          label="Did you spend money or receive money?"
-          placeholder="Choose an option"
-          formikProps={formik}
-          icon="swap-outline"
-          iconPack="eva"
-          inputProps={{
-            disabled: loading,
-          }}
-          options={[
-            {
-              label: 'Spent money',
-              value: 'spend',
-            },
-            {
-              label: 'Received money',
-              value: 'receive',
-            },
-          ]}
-        />
-        <FormikSelectControl
-          name="category"
-          label="Category"
-          placeholder="Choose a category"
-          formikProps={formik}
-          icon="shopping-cart"
-          iconPack="eva"
-          inputProps={{
-            disabled: loading,
-          }}
-          options={categories}
-        />
         <FormikTextControl
-          name="amount"
-          label="Amount"
+          name="balance"
+          label="Starting Balance"
           placeholder="0.00"
           formikProps={formik}
           icon="currency-usd"
           iconPack="material"
           inputProps={{
             disabled: loading,
+            multiline: true,
             keyboardType: 'decimal-pad',
           }}
         />
@@ -142,7 +124,7 @@ const TransactionForm: React.FunctionComponent<TransactionsProps> = props => {
             onPress={(): Promise<void> => formik.submitForm()}
             accessoryRight={loading ? LoadingIndicator : undefined}
           >
-            Save
+            {submitText}
           </Button>
         </View>
         {/* <Button appearance="ghost" onPress={() => navigation.navigate('ForgotPassword')}>Forgot Password</Button> */}
@@ -151,4 +133,4 @@ const TransactionForm: React.FunctionComponent<TransactionsProps> = props => {
   );
 };
 
-export default TransactionForm;
+export default AccountForm;

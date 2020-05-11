@@ -1,56 +1,28 @@
 import {
   Divider,
-  Icon,
+  MenuItem,
   TopNavigation,
   TopNavigationAction,
-  OverflowMenu,
-  MenuItem,
 } from '@ui-kitten/components';
 import * as firebase from 'firebase';
-import { FormikValues, useFormik } from 'formik';
 import * as React from 'react';
 import { StyleSheet } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import uuid from 'uuid-random';
 import * as Yup from 'yup';
+import { formatDate } from '../../utils/format-date.utils';
 import { Transaction } from '../accounts/types';
 import { AuthContext } from '../auth/Auth.context';
+import BackIcon from '../common/icons/BackIcon.component';
+import DeleteIcon from '../common/icons/DeleteIcon.component';
+import LoadingSpinner from '../common/LoadingSpinner.component';
+import MyOverflowMenu from '../common/MyOverflowMenu.component';
+import DeleteTransaction from './DeleteTransaction.container';
 import TransactionForm from './TransactionForm.component';
 import {
   TransactionDetailsScreenNavProp,
   TransactionDetailsScreenRouteProp,
 } from './types';
 import useTransactionDetails from './use-transaction-details.hook';
-import LoadingSpinner from '../common/LoadingSpinner.component';
-import { formatDate } from '../../utils/format-date.utils';
-import MenuIcon from '../common/icons/MenuIcon.component';
-import DeleteIcon from '../common/icons/DeleteIcon.component';
-import BackIcon from '../common/icons/BackIcon.component';
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    padding: 16,
-  },
-  loading: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  indicator: {
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  button: {
-    marginLeft: 4,
-    marginRight: 4,
-  },
-  buttonsRow: {
-    marginTop: 8,
-    justifyContent: 'center',
-    flexDirection: 'row',
-  },
-});
 
 type TransactionsProps = {
   navigation: TransactionDetailsScreenNavProp;
@@ -73,21 +45,31 @@ const CreateTransactionScreen: React.FunctionComponent<TransactionsProps> = prop
   if (initErrorMsg) {
     console.error(initErrorMsg);
   }
-  console.log('transaction', transactionId, transaction);
 
   const updateTransaction = React.useCallback(
     async (values: Transaction): Promise<string> => {
       const db = firebase.firestore();
-      try {
-        db.collection('transactions')
-          .doc(values.id)
-          .update(values);
-      } catch (err) {
-        return err.message;
+      if (transaction) {
+        try {
+          await db
+            .collection('transactions')
+            .doc(values.id)
+            .update(values);
+          const { account } = route.params;
+          await db
+            .collection('accounts')
+            .doc(account.id)
+            .update({
+              currentBalance:
+                account.currentBalance - transaction.amount + values.amount,
+            });
+        } catch (err) {
+          return err.message;
+        }
       }
       return '';
     },
-    [],
+    [route.params, transaction],
   );
 
   const schema = React.useMemo(
@@ -121,6 +103,7 @@ const CreateTransactionScreen: React.FunctionComponent<TransactionsProps> = prop
       };
     }
   }, [transaction]);
+
   const onSubmit = React.useCallback(
     async values => {
       setServerError('');
@@ -151,26 +134,18 @@ const CreateTransactionScreen: React.FunctionComponent<TransactionsProps> = prop
     />
   );
 
-  const [menuVisible, setMenuVisible] = React.useState(false);
+  const [showDelete, setShowDelete] = React.useState<Transaction | undefined>();
 
-  const toggleMenu = (): void => {
-    setMenuVisible(!menuVisible);
+  const onMenuSelect = (row: number): void => {
+    if (row === 0) {
+      setShowDelete(transaction);
+    }
   };
 
-  const renderMenuAction = (): React.ReactElement => (
-    <TopNavigationAction icon={MenuIcon} onPress={toggleMenu} />
-  );
-
   const renderRightActions = (): React.ReactElement => (
-    <>
-      <OverflowMenu
-        anchor={renderMenuAction}
-        visible={menuVisible}
-        onBackdropPress={toggleMenu}
-      >
-        <MenuItem accessoryLeft={DeleteIcon} title="Delete" />
-      </OverflowMenu>
-    </>
+    <MyOverflowMenu onSelect={onMenuSelect}>
+      <MenuItem accessoryLeft={DeleteIcon} title="Delete" />
+    </MyOverflowMenu>
   );
 
   return (
@@ -183,6 +158,12 @@ const CreateTransactionScreen: React.FunctionComponent<TransactionsProps> = prop
         accessoryRight={renderRightActions}
       />
       <Divider />
+      <DeleteTransaction
+        showDelete={showDelete}
+        setShowDelete={setShowDelete}
+        navigation={navigation}
+        account={route.params.account}
+      />
       {initialValues && (
         <TransactionForm
           navigation={navigation}
