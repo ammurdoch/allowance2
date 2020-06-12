@@ -70,7 +70,8 @@ const AccountForm: React.FunctionComponent<AccountsProps> = props => {
   });
 
   return (
-    <KeyboardAvoidingView style={{ flex: 1 }} behavior="padding" enabled>
+    // <KeyboardAvoidingView style={{ flex: 1 }} behavior="padding" enabled>
+    <>
       <Layout style={styles.container}>
         {/* {console.log('values', formik.values)} */}
         {/* {console.log('errors', formik.errors)} */}
@@ -101,7 +102,7 @@ const AccountForm: React.FunctionComponent<AccountsProps> = props => {
           label="Starting Balance"
           placeholder="0.00"
           formikProps={formik}
-          icon="currency-usd"
+          icon="currency-try"
           iconPack="material"
           inputProps={{
             disabled: loading,
@@ -129,7 +130,8 @@ const AccountForm: React.FunctionComponent<AccountsProps> = props => {
         </View>
         {/* <Button appearance="ghost" onPress={() => navigation.navigate('ForgotPassword')}>Forgot Password</Button> */}
       </Layout>
-    </KeyboardAvoidingView>
+    </>
+    // {/* </KeyboardAvoidingView> */}
   );
 };
 

@@ -26,6 +26,7 @@ import SignOutScreen from './src/modules/auth/SignOut.screen';
 import SignUpScreen from './src/modules/auth/SignUp.screen';
 import { AuthContextType } from './src/modules/auth/types';
 import SplashScreen from './src/modules/common/Splash.screen';
+import { AppLoading } from 'expo';
 
 //import "firebase/functions";
 //import "firebase/storage";
@@ -89,7 +90,7 @@ function App(): React.ReactElement {
           {(context: AuthContextType): React.ReactElement => (
             <>
               {context.state.isLoading ? (
-                <SplashScreen />
+                <AppLoading />
               ) : (
                 <NavigationContainer>
                   {context.state.user ? (

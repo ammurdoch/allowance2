@@ -1,48 +1,32 @@
-import { StackNavigationProp } from '@react-navigation/stack';
-import * as React from 'react';
-import { StyleSheet, View, ListRenderItemInfo } from 'react-native';
+import { RouteProp } from '@react-navigation/native';
 import {
+  Button,
+  Divider,
   Layout,
+  List,
+  MenuItem,
+  Spinner,
   Text,
   TopNavigation,
-  Divider,
-  Spinner,
-  Drawer,
-  DrawerItem,
-  TopNavigationAction,
-  List,
-  ListItem,
-  Button,
-  OverflowMenu,
-  MenuItem,
 } from '@ui-kitten/components';
-import { RootStackParamList } from '../../../types';
+import * as React from 'react';
+import { ListRenderItemInfo, StyleSheet, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import * as firebase from 'firebase';
-import { AuthContext } from '../auth/Auth.context';
-import {
-  AccountsStackParamList,
-  Account,
-  Transaction,
-  AccountDetailsScreenNavProp,
-} from './types';
-import { createDrawerNavigator } from '@react-navigation/drawer';
-import { RouteProp } from '@react-navigation/native';
-import BackIcon from '../common/icons/BackIcon.component';
-import TopNavBackAction from '../common/createBack.topNavAction';
-import createTopNavBackAction from '../common/createBack.topNavAction';
-import ForwardIcon from '../common/icons/ForwardIcon.component';
-import PlusIcon from '../common/icons/PlusIcon.component';
-import formatMoney from '../../utils/format-money.utils';
-import useTransactions from '../transactions/use-transactions.hook';
 import settings from '../../settings';
-import TransactionListItem from '../transactions/TransactionListItem.component';
+import formatMoney from '../../utils/format-money.utils';
+import { AuthContext } from '../auth/Auth.context';
 import useCategories from '../categories/use-categories.hook';
-import { Category, CategoryObject } from '../categories/types';
-import DeleteIcon from '../common/icons/DeleteIcon.component';
-import MyOverflowMenu from '../common/MyOverflowMenu.component';
-import DeleteAccount from './DeleteAccount.container';
+import createTopNavBackAction from '../common/createBack.topNavAction';
 import EditIcon from '../common/icons/EditIcon.component copy';
+import PlusIcon from '../common/icons/PlusIcon.component';
+import MyOverflowMenu from '../common/MyOverflowMenu.component';
+import TransactionListItem from '../transactions/TransactionListItem.component';
+import useTransactions from '../transactions/use-transactions.hook';
+import {
+  AccountDetailsScreenNavProp,
+  AccountsStackParamList,
+  Transaction,
+} from './types';
 import useSubcribeAccount from './use-subscrıbe-account.hook';
 
 const styles = StyleSheet.create({
